@@ -8,17 +8,9 @@ echo               SISTEMA TMTR 2026 - OPERACAO
 echo  ======================================================
 echo.
 
-echo  [1/2] Verificando dependencias em segundo plano...
-
-call npm i --silent --no-audit --no-fund > nul 2>&1
-echo        - OK! Dependencias prontas.
-echo.
-
-echo  [2/2] Iniciando o servidor backend...
+echo  Iniciando o servidor backend...
 echo        - O painel sera aberto no seu navegador!
 echo.
-
-call npm run build
 
 start http://localhost:3000
 
