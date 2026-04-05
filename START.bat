@@ -18,6 +18,8 @@ echo  [2/2] Iniciando o servidor backend...
 echo        - O painel sera aberto no seu navegador!
 echo.
 
+call npm run build
+
 start http://localhost:3000
 
 echo  ======================================================
