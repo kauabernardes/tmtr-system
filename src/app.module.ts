@@ -1,31 +1,24 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TournamentService } from './tournament/tournament.service';
-import { TournamentController } from './tournament/tournament.controller';
-import { TournamentGateway } from './tournament/tournament.gateway';
 import { TournamentModule } from './tournament/tournament.module';
-import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: "sqlite",
-      database: "tournament.sqlite",
+      type: 'sqlite',
+      database: 'tournament.sqlite',
       entities: [User],
-      synchronize: true
+      synchronize: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
     }),
     TournamentModule,
-    AuthModule
-    
-    
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
-
-
 })
 export class AppModule {}

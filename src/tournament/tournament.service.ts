@@ -1,12 +1,43 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { TournamentGateway } from './tournament.gateway';
+import { join } from 'path';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 @Injectable()
-export class TournamentService {
+export class TournamentService implements OnModuleInit {
+  private readonly filePath = join(process.cwd(), 'tournament-data.json');
+
   constructor(private readonly tournamentGateway: TournamentGateway) {}
 
   private tablesMemory: Map<string, Record<string, Record<string, string>[]>> =
     new Map();
+
+  onModuleInit() {
+    this.initialLoad();
+  }
+
+  private initialLoad() {
+    try {
+      if (existsSync(this.filePath)) {
+        const raw = readFileSync(this.filePath, 'utf-8');
+        const parsed = JSON.parse(raw);
+
+        this.tablesMemory = new Map(Object.entries(parsed));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do torneio:', error);
+      this.tablesMemory = new Map();
+    }
+  }
+
+  private saveToFile() {
+    try {
+      const data = Object.fromEntries(this.tablesMemory);
+      writeFileSync(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (error) {
+      console.error('Erro ao guardar dados no disco:', error);
+    }
+  }
 
   process(
     text: string,
@@ -45,6 +76,7 @@ export class TournamentService {
     categoryTables[tableName] = tabelaFormatada;
 
     this.tablesMemory.set(category, categoryTables);
+    this.saveToFile();
     this.tournamentGateway.emitTablesUpdate(
       Object.fromEntries(this.tablesMemory),
     );
@@ -77,6 +109,7 @@ export class TournamentService {
       }
     }
 
+    this.saveToFile();
     this.tournamentGateway.emitTablesUpdate(
       Object.fromEntries(this.tablesMemory),
     );
